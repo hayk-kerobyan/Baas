@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/listFrag">
+
+    <fragment
+        android:id="@+id/listFrag"
+        android:name="com.virtussoft.demo.ui.list.ListFrag"
+        android:label="ListFrag"
+        tools:layout="@layout/frag_list">
+        <action
+            android:id="@+id/action_listFrag_to_detailsFrag"
+            app:destination="@id/detailsFrag" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailsFrag"
+        android:name="com.virtussoft.demo.ui.details.DetailsFrag"
+        android:label="DetailsFrag"
+        tools:layout="@layout/frag_details" >
+        <argument
+            android:name="id"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </fragment>
+</navigation>
