@@ -1,9 +1,12 @@
 package com.virtussoft.demo.model.user
 
+/**
+ * Domain object
+ */
 data class User(
-    val id: Long,
+    val id: String,
     val databaseId: Long,
-    val login: String,
-    val nodeId: String,
+    val firstName: String,
+    val lastName: String,
     val avatarUrl: String
 )

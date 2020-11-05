@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Demo</string>
+
+    <!--    UsersList-->
+    <string name="add_user_list_menu">Add user</string>
+
+    <!--    AddUser-->
+    <string name="hint_first_name_add_user">First name</string>
+    <string name="hint_last_name_add_user">Last name</string>
+    <string name="confirm_user_add_menu">Confirm</string>
+
+    <!--    CompaniesList-->
+    <string name="add_company_list_menu">Add company</string>
+
+    <!--    AddCompany-->
+    <string name="hint_name_add_company">Name</string>
+    <string name="confirm_company_add_menu">Confirm</string>
+    <string name="title_user_bottom_nav_view">User</string>
+    <string name="title_company_bottom_nav_view">Company</string>
+
 </resources>

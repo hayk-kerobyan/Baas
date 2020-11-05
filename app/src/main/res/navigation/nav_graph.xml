@@ -3,25 +3,78 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/listFrag">
+    app:startDestination="@id/usersListFrag">
+
+    <action
+        android:id="@+id/action_global_usersListFrag"
+        app:destination="@id/usersListFrag" />
+    <action
+        android:id="@+id/action_global_companiesListFrag"
+        app:destination="@id/companiesListFrag" />
 
     <fragment
-        android:id="@+id/listFrag"
-        android:name="com.virtussoft.demo.ui.list.ListFrag"
+        android:id="@+id/usersListFrag"
+        android:name="com.virtussoft.demo.ui.user_list.UsersListFrag"
         android:label="ListFrag"
-        tools:layout="@layout/frag_list">
+        tools:layout="@layout/frag_list_user">
         <action
             android:id="@+id/action_listFrag_to_detailsFrag"
-            app:destination="@id/detailsFrag" />
+            app:destination="@id/userDetailsFrag" />
+        <action
+            android:id="@+id/action_listFrag_to_addUserFrag"
+            app:destination="@id/addUserFrag" />
+        <argument
+            android:name="mode"
+            android:defaultValue="0"
+            app:argType="integer" />
     </fragment>
     <fragment
-        android:id="@+id/detailsFrag"
-        android:name="com.virtussoft.demo.ui.details.DetailsFrag"
+        android:id="@+id/userDetailsFrag"
+        android:name="com.virtussoft.demo.ui.user_details.UserDetailsFrag"
         android:label="DetailsFrag"
-        tools:layout="@layout/frag_details" >
+        tools:layout="@layout/frag_details_user">
         <argument
             android:name="id"
-            app:argType="long"
-            android:defaultValue="-1L" />
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/addUserFrag"
+        android:name="com.virtussoft.demo.ui.user_add.AddUserFrag"
+        android:label="AddUserFrag" />
+    <fragment
+        android:id="@+id/companiesListFrag"
+        android:name="com.virtussoft.demo.ui.company_list.CompaniesListFrag"
+        android:label="CompaniesListFrag">
+        <action
+            android:id="@+id/action_companiesListFrag_to_addCompanyFrag"
+            app:destination="@id/addCompanyFrag" />
+        <action
+            android:id="@+id/action_companiesListFrag_to_companyDetailsFrag"
+            app:destination="@id/companyDetailsFrag" />
+    </fragment>
+    <fragment
+        android:id="@+id/addCompanyFrag"
+        android:name="com.virtussoft.demo.ui.company_add.AddCompanyFrag"
+        android:label="AddCompanyFrag" />
+    <fragment
+        android:id="@+id/companyDetailsFrag"
+        android:name="com.virtussoft.demo.ui.company_details.CompanyDetailsFrag"
+        android:label="CompanyDetailsFrag">
+        <argument
+            android:name="databaseId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_companyDetailsFrag_to_addEmployeeFrag"
+            app:destination="@id/addEmployeeFrag" />
+    </fragment>
+    <fragment
+        android:id="@+id/addEmployeeFrag"
+        android:name="com.virtussoft.demo.ui.employee_add.AddEmployeeFrag"
+        android:label="AddEmployeeFrag" >
+        <argument
+            android:name="companyId"
+            app:argType="long" />
     </fragment>
 </navigation>

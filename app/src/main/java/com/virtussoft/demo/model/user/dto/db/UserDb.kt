@@ -4,11 +4,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "User")
+@Entity(tableName = "users")
 data class UserDb(
-    @PrimaryKey(autoGenerate = true) val databaseId: Long,
-    @ColumnInfo(name = "id")  val id: Long,
-    @ColumnInfo(name = "login") val login: String,
-    @ColumnInfo(name = "node_id") val nodeId: String,
-    @ColumnInfo(name = "avatar_url") val avatarUrl: String
+    @PrimaryKey(autoGenerate = true) val databaseId: Long = 0,
+    @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "firstName") val firstName: String,
+    @ColumnInfo(name = "lastName") val lastName: String,
+    @ColumnInfo(name = "avatarUrl") val avatarUrl: String
 )

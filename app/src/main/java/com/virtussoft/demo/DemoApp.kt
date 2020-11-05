@@ -27,21 +27,20 @@ class DemoApp : Application() {
 
     private fun initStrictMode() {
         if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(
-                StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectAll()
-                    .penaltyLog()
-                    .penaltyDialog()
-                    .build()
-            )
-            StrictMode.setVmPolicy(
-                StrictMode.VmPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .penaltyDeath()
-                    .build()
-            )
+//            StrictMode.setThreadPolicy(
+//                StrictMode.ThreadPolicy.Builder()
+//                    .detectDiskReads()
+//                    .detectAll()
+//                    .penaltyLog()
+//                    .penaltyDialog()
+//                    .build()
+//            )
+//            StrictMode.setVmPolicy(
+//                StrictMode.VmPolicy.Builder()
+//                    .detectAll()
+//                    .penaltyLog()
+//                    .build()
+//            )
         }
     }
 }
