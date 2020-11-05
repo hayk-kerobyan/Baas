@@ -1,18 +1,18 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as express from 'express';
-import * as https from 'https';
-import * as axios from 'axios';
+import * as axiosLib from 'axios';
 // import * as cors from 'cors';
 
+const axios = axiosLib.default
 admin.initializeApp()
 const app = express();
 // app.use(cors({ origin: true }));
 
 
-    //header : req.header('asd')
-    //path : req.params.asd
-    //query : req.query.asd
+//header : req.header('asd')
+//path : req.params.asd
+//query : req.query.asd
 app.post('/users', async (req, res) => {
   try{
     const user = req.body;
@@ -70,6 +70,19 @@ app.get("/users/:id", async (req, res) => {
     res.status(500).send({error : {"code": 501,"message": err.message}})
   }
 })
+
+app.get("/githubUsers", async (req, res) => {
+  try{
+    const response = await axios.get('https://api.github.com/users')
+    functions.logger.info(response.data);
+    // const users = await admin.firestore().collection('users').get();
+      res.status(200).send(response.data);
+  }catch(err){
+    functions.logger.error(err);
+    res.status(500).send({error : {"code": 501,"message": err.message}})
+  }
+})
+
 
 
 app.get('/companies', async (req, res) => {
