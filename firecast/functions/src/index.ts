@@ -71,22 +71,6 @@ app.get("/users/:id", async (req, res) => {
   }
 })
 
-app.get("/githubUsers", async (req, res) => {
-  try{
-    const user = (await admin.firestore().collection('users').doc(req.params.id).get()).data();
-    if(user){
-      res.status(200).send(user);
-    }else{
-      res.status(500).send({error : {"code": 501,"message": `No user found with id: ${req.params.id}`}})
-    }
-    
-  }catch(err){
-    functions.logger.error(err);
-    res.status(500).send({error : {"code": 501,"message": err.message}})
-  }
-})
-
-
 
 app.get('/companies', async (req, res) => {
   try{
