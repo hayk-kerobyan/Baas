@@ -2,13 +2,16 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as express from 'express';
 import * as axiosLib from 'axios';
-// import * as cors from 'cors';
+import * as cors from 'cors';
+import * as auth from './auth'
+
+
 
 const axios = axiosLib.default
 admin.initializeApp()
 const app = express();
-// app.use(cors({ origin: true }));
-
+app.use(cors({ origin: true }));
+app.use(auth)
 
 //header : req.header('asd')
 //path : req.params.asd
