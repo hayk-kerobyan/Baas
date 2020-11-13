@@ -25,16 +25,16 @@ class UserApi @Inject constructor(
         val newUserRef = firestore.collection(COLLECTION_NAME).document()
 
 //        val avatarUrl = avatar?.let {
-//            val riversRef = FirebaseStorage
-//                .getInstance()
-//                .reference
-//                .child(newUserRef.id)
-//                .putFile(avatar)
-//                .await()
-//                .storage
-//                .downloadUrl
-//                .await()
-//                .toString()
+//                FirebaseStorage
+//                    .getInstance()
+//                    .reference
+//                    .child(newUserRef.id)
+//                    .putFile(avatar)
+//                    .await()
+//                    .storage
+//                    .downloadUrl
+//                    .await()
+//                    .toString()
 //        }
         val userNet = user.toRemoteDto(newUserRef.id, "")
         newUserRef.set(userNet).await()

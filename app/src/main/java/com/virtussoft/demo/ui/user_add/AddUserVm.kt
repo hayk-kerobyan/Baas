@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.virtussoft.demo.model.user.User
 import com.virtussoft.demo.model.user.dto.UserRepo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AddUserVm @ViewModelInject constructor(
@@ -13,6 +14,6 @@ class AddUserVm @ViewModelInject constructor(
 ) : ViewModel() {
 
     internal fun createUser(user: User, avatar: Uri?) =
-        viewModelScope.launch { userRepo.createUser(user, avatar) }
+        viewModelScope.launch(Dispatchers.IO) { userRepo.createUser(user, avatar) }
 
 }

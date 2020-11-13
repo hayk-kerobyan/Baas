@@ -13,6 +13,94 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(auth)
 
+
+// export const onUserCreate = functions.firestore.document('/users/{userId}').onCreate((snapshot, context) => {
+//     context.params.userId
+// });
+  
+
+// export const onUserUpdate = functions.firestore.document('/users/{userId}').onUpdate(change => {
+//     const before = change.before.data()
+//     const after = change.after.data()
+//     if(before!=after){
+//       if(before.firstName != after.firstName){
+
+//       }
+
+//       //return Promise
+//     }else{
+//       return null
+//     }
+//   });
+
+export const addEmployee = functions.https.onRequest(async (request, response) => {
+  try{
+    
+    functions.logger.info("addEmployee called");
+    const MAX_NUMBER_OF_EMPLOYERS = 2
+    const body = request.body.data
+
+    functions.logger.info(`Body: ${JSON.stringify(body)}`);
+    const userId = body.userId
+    const companyId = body.companyId
+    functions.logger.info(`userId: ${userId}, companyId: ${companyId}`);
+    const employees = await admin.firestore().collection(`employees`).where('userId', '==', userId).get()
+    functions.logger.info(`employees: ${JSON.stringify(employees)}`);
+
+    if(employees.size < MAX_NUMBER_OF_EMPLOYERS){
+      for(let i = 0; i < employees.docs.length; i++){
+        if(employees.docs[i].data().companyId === companyId){
+          functions.logger.info('The user is already employed at this company');
+          response.status(500).send({error: {"code": 501, "message": "The user is already employed at this company"} })
+          return
+        }
+      }
+
+      const userPromise = admin.firestore().doc(`users/${userId}`).get()
+      const companyPromise = admin.firestore().doc(`companies/${companyId}`).get()
+      const user =  (await userPromise).data()
+      const company = (await companyPromise).data()
+
+      functions.logger.info(`user: ${JSON.stringify(user)}`);
+      functions.logger.info(`company: ${JSON.stringify(company)}`);
+      if(user && company){
+      const newEmployeeRef = admin.firestore().collection('employees').doc();
+      const employee = {
+        id: newEmployeeRef.id,
+        userId: userId,
+        companyId: companyId,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatarUrl: user.avatarUrl,
+        companyName: company.name
+      }
+      functions.logger.info(`employee: ${JSON.stringify(employee)}`);
+
+      await newEmployeeRef.set(employee)
+
+      functions.logger.info("SENDING employee");
+
+      response.status(200).send({data:employee})
+      }else{
+        functions.logger.error("The user or the company is missing");
+        response.status(500).send({error: {"code": 501, "message": "The user or the company is missing"} })
+      }
+    }else{
+      functions.logger.error("The user is already employed at ${MAX_NUMBER_OF_EMPLOYERS} companies");
+      response.status(500).send({
+        error: {
+          "code": 501,
+          "message": `The user is already employed at ${MAX_NUMBER_OF_EMPLOYERS} companies`
+        }
+      })
+    }
+  }catch(err){
+    functions.logger.error(err);
+    response.status(500).send({error : {"code": 501,"message": err.message}})
+  }
+
+});
+
 //header : req.header('asd')
 //path : req.params.asd
 //query : req.query.asd
@@ -198,73 +286,7 @@ exports.api = functions.https.onRequest(app);
 
 
 
-export const addEmployee = functions.https.onRequest(async (request, response) => {
-  try{
-    
-    functions.logger.info("addEmployee called");
-    const MAX_NUMBER_OF_EMPLOYERS = 2
-    const body = request.body.data
 
-    functions.logger.info(`Body: ${JSON.stringify(body)}`);
-    const userId = body.userId
-    const companyId = body.companyId
-    functions.logger.info(`userId: ${userId}, companyId: ${companyId}`);
-    const employees = await admin.firestore().collection(`employees`).where('userId', '==', userId).get()
-    functions.logger.info(`employees: ${JSON.stringify(employees)}`);
-
-    if(employees.size < MAX_NUMBER_OF_EMPLOYERS){
-      for(let i = 0; i < employees.docs.length; i++){
-        if(employees.docs[i].data().companyId === companyId){
-          functions.logger.info('The user is already employed at this company');
-          response.status(500).send({error: {"code": 501, "message": "The user is already employed at this company"} })
-          return
-        }
-      }
-
-      const userPromise = admin.firestore().doc(`users/${userId}`).get()
-      const companyPromise = admin.firestore().doc(`companies/${companyId}`).get()
-      const user =  (await userPromise).data()
-      const company = (await companyPromise).data()
-
-      functions.logger.info(`user: ${JSON.stringify(user)}`);
-      functions.logger.info(`company: ${JSON.stringify(company)}`);
-      if(user && company){
-      const newEmployeeRef = admin.firestore().collection('employees').doc();
-      const employee = {
-        id: newEmployeeRef.id,
-        userId: userId,
-        companyId: companyId,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        avatarUrl: user.avatarUrl,
-        companyName: company.name
-      }
-      functions.logger.info(`employee: ${JSON.stringify(employee)}`);
-
-      await newEmployeeRef.set(employee)
-
-      functions.logger.info("SENDING employee");
-
-      response.status(200).send({data:employee})
-      }else{
-        functions.logger.error("The user or the company is missing");
-        response.status(500).send({error: {"code": 501, "message": "The user or the company is missing"} })
-      }
-    }else{
-      functions.logger.error("The user is already employed at ${MAX_NUMBER_OF_EMPLOYERS} companies");
-      response.status(500).send({
-        error: {
-          "code": 501,
-          "message": `The user is already employed at ${MAX_NUMBER_OF_EMPLOYERS} companies`
-        }
-      })
-    }
-  }catch(err){
-    functions.logger.error(err);
-    response.status(500).send({error : {"code": 501,"message": err.message}})
-  }
-
-});
 
 // export const getUsers = functions.https.onRequest((request, response) => {
 //     admin.firestore().collection('users').get()
@@ -278,24 +300,6 @@ export const addEmployee = functions.https.onRequest(async (request, response) =
 //     })
 // });
 
-// export const onUserCreate = functions.firestore.document('/users/{userId}').onCreate((snapshot, context) => {
-//     context.params.userId
-// });
-  
-
-// export const onUserUpdate = functions.firestore.document('/users/{userId}').onUpdate(change => {
-//     const before = change.before.data()
-//     const after = change.after.data()
-//     if(before!=after){
-//       if(before.firstName != after.firstName){
-
-//       }
-
-//       //return Promise
-//     }else{
-//       return null
-//     }
-//   });
 
 // exports.scheduledFunction = functions.pubsub.schedule('* * * * *').onRun(async (context) => {
 //   await admin.firestore().collection('timers').doc('timer1').update({"time": admin.firestore.Timestamp.now()});

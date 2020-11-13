@@ -77,12 +77,9 @@ class AddUserFrag : BaseFrag() {
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 Glide.with(avatarIV.context).load(avatarUri).into(avatarIV)
-            } else {
-                avatarUri = null
             }
         }
     }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -103,18 +100,6 @@ class AddUserFrag : BaseFrag() {
             lastName = lastNameET.text.toString(),
             avatarUrl = ""
         )
-        val uri = Uri.parse(
-            buildString {
-                append(ContentResolver.SCHEME_ANDROID_RESOURCE)
-                append(File.pathSeparator)
-                append(File.separator)
-                append(File.separator)
-                append(requireContext().packageName)
-                append(File.separator)
-                append(R.raw.user)
-            }
-        )
-
         viewModel.createUser(user, avatarUri)
     }
 
@@ -127,9 +112,6 @@ class AddUserFrag : BaseFrag() {
 
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (takePictureIntent.resolveActivity(requireContext().packageManager) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-        }
         // Ensure that there's a camera activity to handle the intent
         takePictureIntent.resolveActivity(requireContext().packageManager)?.also {
             // Create the File where the photo should go
