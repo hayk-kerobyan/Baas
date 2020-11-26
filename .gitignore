@@ -196,7 +196,7 @@ firecast/yarn-integrity
 firecast/env
 
 
-firecast/functions/**/*.js
+firecast/functions/lib/*.js
 firecast/functions/**/*.js.map
 firecast/functions/!.eslintrc.js
 firecast/functions/typings/
