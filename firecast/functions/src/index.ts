@@ -4,73 +4,24 @@ import * as express from 'express';
 import * as axiosLib from 'axios';
 import * as auth from './auth'
 
-
-// Firebase adds SDKs, tools and configurations to some Google Cloud products for use in mobile and web applications
-
-// Cloud Functions:                 Node.js, Python, Go, and Java
-// Cloud Functions for Firebase:    JavaScript or TypeScript
-
-
 admin.initializeApp()
 
 
 
-// Triggers
-
-// onCreate	Triggered when a document is written to for the first time.
-// onUpdate	Triggered when a document already exists and has any value changed.
-// onDelete	Triggered when a document with data is deleted.
-// onWrite	Triggered when onCreate, onUpdate or onDelete is triggered.
 
 
 
 
-//Called when new user is created
-export const onUserCreate = functions.firestore
-.document('/users/{userId}')
-.onCreate((snapshot, context) => {
 
-  //Logging userId
-  functions.logger.info(`User with userId: ${context.params.userId}, was created`);
-  
-  //Setting user's createdAt and updatedAt fields
-  const now = new Date()
-  return snapshot.ref.update({createdAt : now, updatedAt: now, points : 100})
-});
-
-
-//Called when new user is updated
-export const onUserUpdate = functions.firestore
-.document('/users/{userId}')
-.onUpdate((change, context) => {
-
-  //data before change
-  const before = change.before.data()
-
-  //data after change
-  const after = change.after.data()
-
-  //checks prevent infinite loop
-  if(before.firstName != after.firstName
-    || before.lastName != after.lastName
-    || before.avatarUrl != after.avatarUrl
-    || before.points != after.points){
-      //Logging event and userId
-      functions.logger.info(`User with userId: ${context.params.userId}, was updated`);
-
-      //Setting user's updatedAt fields
-      const now = new Date()
-      return change.after.ref.update({updatedAt: now})
-  }else{
-    return null
-  }
-});
 
 
 
 
 
 // Functions called directly
+
+// https://us-central1-fir-dc83e.cloudfunctions.net/addEmployee
+
 export const addEmployee = functions.https.onRequest(async (request, response) => {
   try{
     
@@ -157,10 +108,85 @@ export const addEmployee = functions.https.onRequest(async (request, response) =
 
 
 
+
+
+
+
+
+// Triggers
+
+// onCreate	Triggered when a document is written to for the first time.
+// onUpdate	Triggered when a document already exists and has any value changed.
+// onDelete	Triggered when a document with data is deleted.
+// onWrite	Triggered when onCreate, onUpdate or onDelete is triggered.
+
+
+
+
+//Called when new user is created
+export const onUserCreate = functions.firestore
+.document('/users/{userId}')
+.onCreate((snapshot, context) => {
+
+  //Logging userId
+  functions.logger.info(`User with userId: ${context.params.userId}, was created`);
+  
+  //Setting user's createdAt and updatedAt fields
+  const now = new Date()
+  return snapshot.ref.update({createdAt : now, updatedAt: now, points : 100})
+});
+
+
+//Called when new user is updated
+export const onUserUpdate = functions.firestore
+.document('/users/{userId}')
+.onUpdate((change, context) => {
+
+  //data before change
+  const before = change.before.data()
+
+  //data after change
+  const after = change.after.data()
+
+  //checks prevent infinite loop
+  if(before.firstName != after.firstName
+    || before.lastName != after.lastName
+    || before.avatarUrl != after.avatarUrl
+    || before.points != after.points){
+      //Logging event and userId
+      functions.logger.info(`User with userId: ${context.params.userId}, was updated`);
+
+      //Setting user's updatedAt fields
+      const now = new Date()
+      return change.after.ref.update({updatedAt: now})
+  }else{
+    return null
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // REST with Firebase Functions
+// Base: https://us-central1-fir-dc83e.cloudfunctions.net/api/ 
 const app = express();
 
 
+
+//Create user
+
+// Base: https://us-central1-fir-dc83e.cloudfunctions.net/api/users
 app.post('/users', async (req, res) => {
   try{
     //header : req.header('headerName')
@@ -177,6 +203,7 @@ app.post('/users', async (req, res) => {
   }
 });
 
+//Update user
 app.put("/users/:id", async (req, res) => {
   try{
     const body = req.body;
@@ -189,6 +216,7 @@ app.put("/users/:id", async (req, res) => {
   }
 });
 
+//Delete User
 app.delete("/users/:id", async (req, res) => {
   try{
     const userId = req.params.id
@@ -200,6 +228,7 @@ app.delete("/users/:id", async (req, res) => {
   }
 })
 
+//Get all users
 app.get('/users', async (req, res) => {
   try{
     const snapshot = await admin.firestore().collection('users').get();
@@ -217,6 +246,7 @@ app.get('/users', async (req, res) => {
   }
 });
 
+//Get user
 app.get("/users/:id", async (req, res) => {
   try{
     const userSnap = await admin.firestore().collection('users').doc(req.params.id).get();
@@ -233,6 +263,7 @@ app.get("/users/:id", async (req, res) => {
   }
 })
 
+//Get all companies
 app.get('/companies', async (req, res) => {
   try{
     const snapshot = await admin.firestore().collection('companies').get();
@@ -259,97 +290,6 @@ app.get('/companies', async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-//Batch operation example
-app.post("/users/:id/first-name", async (req, res) => {
-  try{
-    //Retreiving userId and updated name
-    const firstName = req.body.firstName;
-    const userId = req.params.id
-    const userRef = admin.firestore().collection('users').doc(userId)
-
-    //If user is also an employee, we should update the docs with batch request
-    const employees = await admin.firestore().collection(`employees`).where('userId', '==', userId).get()
-
-    if(!employees.empty){
-      //User is employed at least in 1 company, so we should update his name everywhere with batch request
-      const batch = admin.firestore().batch()
-      batch.update(userRef, {firstName : firstName})
-      employees.forEach((employee) => {
-        batch.update(admin.firestore().collection('employees').doc(employee.id), {firstName:firstName})
-      })
-      await batch.commit()
-    }else{
-      //User is not employed anywhere, so we should update only user document
-      await userRef.update({firstName : firstName});
-    }
-    res.status(200).send({"data":userId})
-  }catch(err){
-    functions.logger.error(err);
-    res.status(500).send({error : {"code": 501,"message": err.message}})
-  }
-});
-
-
-
-
-
-
-
-
-
-
-
-//Transaction example
-app.post("/users/:id/transfer", async (req, res) => {
-  try{
-    functions.logger.info("Transfer function called");
-
-    const transferAmount = req.body.points;
-    const fromUserId = req.params.id;
-    const toUserId = req.body.toUserId;
-
-    functions.logger.info(`Transfer amount:${transferAmount}, from user: ${fromUserId}, to user: ${toUserId}`);
-
-    await admin.firestore().runTransaction(async t => {
-      //Retreiving users that make the transfer
-      const fromUserRef = admin.firestore().collection('users').doc(fromUserId)
-      const toUserRef = admin.firestore().collection('users').doc(toUserId)
-      const fromUserPromise = t.get(fromUserRef)
-      const toUserPromise = t.get(toUserRef)
-      const fromUser = (await fromUserPromise).data()
-      const toUser = (await toUserPromise).data()
-      functions.logger.info(`From user data: ${JSON.stringify(fromUser)}`);
-      functions.logger.info(`To user data: ${JSON.stringify(toUser)}`);
-      if(!fromUser) throw new Error('Invalid remitter id')
-      if(!toUser) throw new Error('Invalid receiver id')
-
-      //Check if remmiter has available points 
-      if(fromUser.points >= transferAmount){
-        //update points for both users
-        t.update(fromUserRef, {points : (fromUser.points - transferAmount)}) 
-        t.update(toUserRef, {points : (toUser.points + transferAmount)}) 
-      }else{
-        throw new Error('Insufficient funds')
-      }
-    })
-    res.status(200).send({"data":"ok"})
-  }catch(err){
-    functions.logger.error(err);
-    res.status(500).send({error : {"code": 501,"message": err.message}})
-  }
-});
 
 
 
@@ -411,6 +351,105 @@ app.get("/githubUsersWithAuth", auth, async (req, res) => {
 
 //If uncommented, all the app requests will require authentication
 // app.use(auth)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Batch operation example
+//Updae user name in both users and employees collections
+app.post("/users/:id/first-name", async (req, res) => {
+  try{
+    //Retreiving userId and updated name
+    const firstName = req.body.firstName;
+    const userId = req.params.id
+    const userRef = admin.firestore().collection('users').doc(userId)
+
+    //If user is also an employee, we should update the docs with batch request
+    const employees = await admin.firestore().collection(`employees`).where('userId', '==', userId).get()
+
+    if(!employees.empty){
+      //User is employed at least in 1 company, so we should update his name everywhere with batch request
+      const batch = admin.firestore().batch()
+      batch.update(userRef, {firstName : firstName})
+      employees.forEach((employee) => {
+        batch.update(admin.firestore().collection('employees').doc(employee.id), {firstName:firstName})
+      })
+      await batch.commit()
+    }else{
+      //User is not employed anywhere, so we should update only user document
+      await userRef.update({firstName : firstName});
+    }
+    res.status(200).send({"data":userId})
+  }catch(err){
+    functions.logger.error(err);
+    res.status(500).send({error : {"code": 501,"message": err.message}})
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+//Transaction example
+//Transfer points from one user to another
+app.post("/users/:id/transfer", async (req, res) => {
+  try{
+    functions.logger.info("Transfer function called");
+
+    const transferAmount = req.body.points;
+    const fromUserId = req.params.id;
+    const toUserId = req.body.toUserId;
+
+    functions.logger.info(`Transfer amount:${transferAmount}, from user: ${fromUserId}, to user: ${toUserId}`);
+
+    await admin.firestore().runTransaction(async t => {
+      //Retreiving users that make the transfer
+      const fromUserRef = admin.firestore().collection('users').doc(fromUserId)
+      const toUserRef = admin.firestore().collection('users').doc(toUserId)
+      const fromUserPromise = t.get(fromUserRef)
+      const toUserPromise = t.get(toUserRef)
+      const fromUser = (await fromUserPromise).data()
+      const toUser = (await toUserPromise).data()
+      functions.logger.info(`From user data: ${JSON.stringify(fromUser)}`);
+      functions.logger.info(`To user data: ${JSON.stringify(toUser)}`);
+      if(!fromUser) throw new Error('Invalid remitter id')
+      if(!toUser) throw new Error('Invalid receiver id')
+
+      //Check if remmiter has available points 
+      if(fromUser.points >= transferAmount){
+        //update points for both users
+        t.update(fromUserRef, {points : (fromUser.points - transferAmount)}) 
+        t.update(toUserRef, {points : (toUser.points + transferAmount)}) 
+      }else{
+        throw new Error('Insufficient funds')
+      }
+    })
+    res.status(200).send({"data":"ok"})
+  }catch(err){
+    functions.logger.error(err);
+    res.status(500).send({error : {"code": 501,"message": err.message}})
+  }
+});
+
+
 
 
 //on each request endpoints will be checked and, if applicable, then triggered 

@@ -1,9 +1,10 @@
 package com.virtussoft.demo.model.employee.dto.net
 
-import com.google.android.gms.tasks.Continuation
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.functions.FirebaseFunctions
-import com.google.firebase.functions.HttpsCallableResult
 import com.google.gson.Gson
 import com.virtussoft.demo.model.employee.Employee
 import kotlinx.coroutines.tasks.await
@@ -22,6 +23,14 @@ class EmployeeApi @Inject constructor(
     }
 
     suspend fun createEmployee(employee: Employee): EmployeeNet {
+        //WITH CALLBACK
+//        firestore
+//            .collection(COLLECTION_NAME)
+//            .add(employee)
+//            .addOnSuccessListener { documentReference -> /*Do work here*/}
+//            .addOnFailureListener { e -> /*Handle Exception*/}
+
+        //WITH COROUTINES
 //        val newEmployeeRef = firestore.collection(COLLECTION_NAME).document()
 //        val employeeNet = employee.toRemoteDto(newEmployeeRef.id)
 //        newEmployeeRef.set(employeeNet).await()
