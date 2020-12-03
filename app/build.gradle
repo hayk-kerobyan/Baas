@@ -28,7 +28,6 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -36,7 +35,7 @@ android {
 
 
         debug {
-            buildConfigField "String", "BASE_URL", '"https://api.github.com"'
+            buildConfigField "String", "BASE_URL", '"https://us-central1-fir-dev-6f2ad.cloudfunctions.net/api"'
         }
 
         release {
@@ -44,7 +43,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             //Currently is same as debug url
-            buildConfigField "String", "BASE_URL", '"https://api.github.com"'
+            buildConfigField "String", "BASE_URL", '"https://us-central1-fir-dc83e.cloudfunctions.net/api"'
         }
     }
 }
@@ -76,6 +75,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-functions:16.1.3'
     //coroutines support for firebase operations
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.3.1'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
 
     //Room
     def room_version = "2.3.0-alpha02"

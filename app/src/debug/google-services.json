@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "492983010677",
+    "firebase_url": "https://fir-dev-6f2ad.firebaseio.com",
+    "project_id": "fir-dev-6f2ad",
+    "storage_bucket": "fir-dev-6f2ad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:492983010677:android:786062e9589f95f9947f3c",
+        "android_client_info": {
+          "package_name": "com.virtussoft.demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "492983010677-glmrod78hfbelner3bcdj5fojoebk638.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIM-4-jaEG06I7MqRhdYWoJ61G3Y7N8CQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "492983010677-glmrod78hfbelner3bcdj5fojoebk638.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

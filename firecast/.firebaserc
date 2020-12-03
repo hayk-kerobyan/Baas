@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "fir-dc83e"
+    "default": "fir-dc83e",
+    "dev": "fir-dev-6f2ad"
   }
 }
