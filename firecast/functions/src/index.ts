@@ -2,19 +2,17 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as express from 'express';
 import * as axiosLib from 'axios';
-import * as auth from './auth'
+import * as auth from './auth';
+import * as redis from 'redis';
+
 
 admin.initializeApp()
 
+const REDIS_HOST = '10.90.40.123'
+const REDIS_PORT = 6379
+const cache = redis.createClient(REDIS_PORT, REDIS_HOST)
 
-
-
-
-
-
-
-
-
+const fromCache = (key:string):Promise<string|null>=>new Promise(async resolve =>{})
 
 
 
@@ -127,7 +125,7 @@ export const addEmployee = functions.https.onRequest(async (request, response) =
 export const onUserCreate = functions.firestore
 .document('/users/{userId}')
 .onCreate((snapshot, context) => {
-
+ 
   //Logging userId
   functions.logger.info(`User with userId: ${context.params.userId}, was created`);
   
@@ -249,13 +247,22 @@ app.get('/users', async (req, res) => {
 //Get user
 app.get("/users/:id", async (req, res) => {
   try{
-    const userSnap = await admin.firestore().collection('users').doc(req.params.id).get();
-    const user = userSnap.data()
-    if(user){
-      user.id = userSnap.id
-      res.status(200).send(user);
+    const userId = req.params.id
+    const cachedUser = await fromCache(userId)
+    if(cachedUser){
+      res.status(200).send(Object.assign({}, JSON.parse(cachedUser), {from:'redis'}));
     }else{
-      res.status(500).send({error : {"code": 501,"message": `No user found with id: ${req.params.id}`}})
+      const userSnap = await admin.firestore().collection('users').doc(req.params.id).get();
+      const user = userSnap.data()
+      if(user){
+        user.id = userId
+        if(cache.connected == true){
+          await cache.set(userId, JSON.stringify(user))
+        }
+        res.status(200).send(user);
+      }else{
+        res.status(500).send({error : {"code": 501,"message": `No user found with id: ${req.params.id}`}})
+      }
     }
   }catch(err){
     functions.logger.error(err);
