@@ -258,17 +258,26 @@ app.get('/users', async (req, res) => {
 app.get("/users/:id", async (req, res) => {
   try{
     const userId = req.params.id
-    const cachedUser = await fromCache(userId)
-    if(cachedUser){
-      res.status(200).send(Object.assign({}, JSON.parse(cachedUser), {from:'redis'}));
+    if(cache.connected===true){
+      const cachedUser = await fromCache(userId)
+      if(cachedUser){
+        res.status(200).send(Object.assign({}, JSON.parse(cachedUser), {from:'redis'}));
+      }else{
+        const userSnap = await admin.firestore().collection('users').doc(req.params.id).get();
+        const user = userSnap.data()
+        if(user){
+          user.id = userId
+          await cache.set(userId, JSON.stringify(user))
+          res.status(200).send(user);
+        }else{
+          res.status(500).send({error : {"code": 501,"message": `No user found with id: ${req.params.id}`}})
+        }
+      }
     }else{
       const userSnap = await admin.firestore().collection('users').doc(req.params.id).get();
       const user = userSnap.data()
       if(user){
         user.id = userId
-        if(cache.connected == true){
-          await cache.set(userId, JSON.stringify(user))
-        }
         res.status(200).send(user);
       }else{
         res.status(500).send({error : {"code": 501,"message": `No user found with id: ${req.params.id}`}})
