@@ -12,7 +12,19 @@ const REDIS_HOST = '10.134.25.67'
 const REDIS_PORT = 6379
 const cache = redis.createClient(REDIS_PORT, REDIS_HOST)
 
-const fromCache = (key:string):Promise<string|null>=>new Promise(async resolve =>{})
+const fromCache = (key:string):Promise<string|null>=> new Promise(async resolve => {
+  if(cache.connected===false){
+      resolve(null)
+  }else{
+    return await cache.get(key, function(_err, reply){
+      if(_err){
+        resolve(null)
+      }else{
+        resolve(reply)
+      }
+    })
+  }
+})
 
 
 
@@ -147,10 +159,10 @@ export const onUserUpdate = functions.firestore
   const after = change.after.data()
 
   //checks prevent infinite loop
-  if(before.firstName != after.firstName
-    || before.lastName != after.lastName
-    || before.avatarUrl != after.avatarUrl
-    || before.points != after.points){
+  if(before.firstName !== after.firstName
+    || before.lastName !== after.lastName
+    || before.avatarUrl !== after.avatarUrl
+    || before.points !== after.points){
       //Logging event and userId
       functions.logger.info(`User with userId: ${context.params.userId}, was updated`);
 
