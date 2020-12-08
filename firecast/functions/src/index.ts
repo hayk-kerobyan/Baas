@@ -12,19 +12,17 @@ const REDIS_HOST = '10.134.25.67'
 const REDIS_PORT = 6379
 const cache = redis.createClient(REDIS_PORT, REDIS_HOST)
 
-const fromCache = (key:string):Promise<string|null>=> new Promise(async resolve => {
-  if(cache.connected===false){
-      resolve(null)
-  }else{
-    return await cache.get(key, function(_err, reply){
-      if(_err){
-        resolve(null)
-      }else{
-        resolve(reply)
+
+function fromCache(key:string) : Promise<string|null> {
+  return new Promise((resolve, reject) => {
+    cache.get(key, (err, data) => {
+      if (err) {
+        reject(err);
       }
-    })
-  }
-})
+      resolve(data);
+    });
+  });
+}
 
 
 
