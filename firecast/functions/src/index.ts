@@ -8,7 +8,7 @@ import * as redis from 'redis';
 
 admin.initializeApp()
 
-const REDIS_HOST = '10.134.25.67'
+const REDIS_HOST = '10.182.55.35'
 const REDIS_PORT = 6379
 const cache = redis.createClient(REDIS_PORT, REDIS_HOST)
 
