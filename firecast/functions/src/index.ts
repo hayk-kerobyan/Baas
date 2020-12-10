@@ -263,6 +263,7 @@ app.get("/users/:id", async (req, res) => {
       if(cachedUser){
         res.status(200).send(Object.assign({}, JSON.parse(cachedUser), {from:'redis'}));
       }else{
+        functions.logger.error('cached user is null');
         const userSnap = await admin.firestore().collection('users').doc(req.params.id).get();
         const user = userSnap.data()
         if(user){
@@ -274,6 +275,8 @@ app.get("/users/:id", async (req, res) => {
         }
       }
     }else{
+
+      functions.logger.error('Redis not connected');
       const userSnap = await admin.firestore().collection('users').doc(req.params.id).get();
       const user = userSnap.data()
       if(user){
